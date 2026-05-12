@@ -1,0 +1,33 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { Header } from '../components/Header';
+---
+
+<Layout title="404 - Page Non Trouvée | Les Pensées de Mina">
+	<Header client:load />
+	<main class="error-page letter-bg">
+		<div class="letter animate-fade-in">
+			<div class="stamp">404</div>
+			<h1 class="letter-title">Oups... Cette page s'est envolée</h1>
+			<div class="letter-content">
+				<p>Comme une feuille emportée par le vent, la page que vous cherchez a disparu de mon journal.</p>
+				<p>Peut-être est-elle cachée entre deux poèmes, ou bien n'a-t-elle jamais été écrite.</p>
+			</div>
+			<div class="wax-seal-container">
+				<a href="/" class="wax-seal">M</a>
+			</div>
+		</div>
+	</main>
+</Layout>
+
+<style>
+	.error-page {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		min-height: 100vh;
+	}
+	.letter {
+		text-align: center;
+	}
+</style>
