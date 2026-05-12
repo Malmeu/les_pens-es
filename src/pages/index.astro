@@ -1,0 +1,168 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../layouts/Layout.astro';
+import { Header } from '../components/Header';
+import Hero from '../components/Hero.astro';
+import { ThoughtGrid } from '../components/ThoughtGrid';
+
+const thoughts = await getCollection('thoughts');
+const formattedThoughts = thoughts.map(t => ({
+	id: t.id,
+	slug: t.id, // Dans Astro 5+ glob loader, l'id est souvent le chemin relatif/slug
+	type: t.data.type,
+	title: t.data.title,
+	content: "Cliquez pour lire cette lettre...", // Le corps n'est pas directement accessible sans render
+	date: new Date(t.data.date).toLocaleDateString('fr-FR', {
+		day: 'numeric',
+		month: 'long',
+		year: 'numeric'
+	})
+})).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+---
+
+<Layout title="Les Pensées de Mina | Blog Poétique">
+	<Header client:load />
+	<main>
+		<Hero />
+		<ThoughtGrid client:load initialThoughts={formattedThoughts} />
+		
+		<section id="apropos" class="section-padding about-section">
+			<div class="container about-container">
+				<div class="about-image">
+					<div class="image-wrapper">
+						<img src="/images/hero-bg.png" alt="Mina" class="mina-avatar" />
+					</div>
+				</div>
+				<div class="about-text">
+					<span class="subtitle">À propos de moi</span>
+					<h2>Mina, une âme en <span class="text-gradient">mots</span></h2>
+					<p>
+						Bienvenue dans mon petit sanctuaire digital. Je m'appelle Mina, et j'ai toujours trouvé que les émotions étaient plus faciles à porter une fois écrites sur le papier (ou sur un écran). 
+					</p>
+					<p>
+						Ici, je partage mes pensées brutes, sans filtre. Des éclats de joie intense aux journées plus sombres où la pluie s'invite dans mon esprit. Parfois c'est de la prose, parfois c'est de la poésie, mais c'est toujours sincère.
+					</p>
+					<div class="signature">Avec amour, Mina</div>
+				</div>
+			</div>
+		</section>
+	</main>
+	
+	<footer class="footer">
+		<div class="container footer-content">
+			<div class="footer-logo">Les Pensées de Mina</div>
+			<p>&copy; 2026 - Créé avec tendresse par Mina</p>
+			<div class="footer-links">
+				<a href="/write" class="admin-link">Écrire une pensée</a>
+				<a href="#">Confidentialité</a>
+				<a href="#">Contact</a>
+			</div>
+		</div>
+	</footer>
+</Layout>
+
+<style>
+	.about-section {
+		background: white;
+	}
+
+	.about-container {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 5rem;
+		align-items: center;
+	}
+
+	.about-image {
+		position: relative;
+	}
+
+	.image-wrapper {
+		width: 100%;
+		aspect-ratio: 1;
+		border-radius: 30px;
+		overflow: hidden;
+		box-shadow: var(--shadow);
+	}
+
+	.mina-avatar {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		transition: transform 0.5s ease;
+	}
+
+	.image-wrapper:hover .mina-avatar {
+		transform: scale(1.05);
+	}
+
+	.about-text h2 {
+		font-size: 3rem;
+		margin-bottom: 2rem;
+	}
+
+	.about-text p {
+		font-size: 1.1rem;
+		color: var(--text-light);
+		margin-bottom: 1.5rem;
+		line-height: 1.8;
+	}
+
+	.signature {
+		font-family: var(--font-script);
+		font-size: 2.5rem;
+		color: var(--primary);
+		margin-top: 3rem;
+	}
+
+	.footer {
+		background: var(--bg);
+		padding: 4rem 0;
+		border-top: 1px solid var(--primary-light);
+	}
+
+	.footer-content {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 2rem;
+	}
+
+	.footer-logo {
+		font-family: var(--font-serif);
+		font-size: 1.5rem;
+		font-weight: 700;
+		color: var(--primary);
+	}
+
+	.footer p {
+		color: var(--text-light);
+		font-size: 0.9rem;
+	}
+
+	.footer-links {
+		display: flex;
+		gap: 2rem;
+	}
+
+	.footer-links a {
+		color: var(--text-light);
+		font-size: 0.8rem;
+		text-transform: uppercase;
+		letter-spacing: 1px;
+	}
+
+	.admin-link {
+		color: var(--primary) !important;
+		font-weight: 700;
+	}
+
+	@media (max-width: 768px) {
+		.about-container {
+			grid-template-columns: 1fr;
+			text-align: center;
+		}
+		
+		.about-text h2 { font-size: 2.5rem; }
+	}
+</style>

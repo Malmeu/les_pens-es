@@ -1,0 +1,173 @@
+---
+---
+<section id="accueil" class="hero">
+  <div class="hero-bg" style="background-image: url('/images/hero-bg.png');"></div>
+  <div class="hero-overlay"></div>
+  <div class="container hero-content">
+    <div class="hero-text animate-fade-in">
+      <span class="subtitle">Bienvenue dans mon univers</span>
+      <h1>Les Pensées de <span class="text-gradient">Mina</span></h1>
+      <p class="poem">
+        "Ici, les mots dansent entre ombre et lumière,<br/>
+        Des éclats de joie aux larmes de poussière.<br/>
+        Entre tes mains, mon cœur se décline,<br/>
+        Dans chaque vers, une émotion se dessine."
+      </p>
+      <div class="hero-actions">
+        <a href="#pensees" class="btn btn-primary">Explorer mes pensées</a>
+        <a href="#pensees" class="btn btn-outline">Lire un poème</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    padding-top: 80px; /* Espace pour le header */
+  }
+
+  .hero-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    z-index: -2;
+    transform: scale(1.1);
+    animation: zoomOut 20s infinite alternate;
+  }
+
+  @keyframes zoomOut {
+    from { transform: scale(1.1); }
+    to { transform: scale(1); }
+  }
+
+  .hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to right, rgba(255, 245, 247, 0.9), rgba(255, 245, 247, 0.3));
+    z-index: -1;
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+  }
+
+  .hero-text {
+    max-width: 600px;
+  }
+
+  .subtitle {
+    display: block;
+    font-family: var(--font-script);
+    font-size: 1.8rem;
+    color: var(--secondary);
+    margin-bottom: 1rem;
+  }
+
+  h1 {
+    font-size: clamp(3rem, 10vw, 4.5rem);
+    line-height: 1.1;
+    margin-bottom: 2rem;
+    color: var(--text-dark);
+  }
+
+  .poem {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: clamp(1rem, 4vw, 1.2rem);
+    color: var(--text-light);
+    margin-bottom: 3rem;
+    line-height: 1.8;
+    border-left: 3px solid var(--primary-light);
+    padding-left: 1.5rem;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    padding: 0.8rem 2rem;
+    border-radius: 50px;
+    font-family: var(--font-sans);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.8rem;
+    transition: all 0.3s ease;
+    text-align: center;
+    flex: 1;
+    min-width: 200px;
+  }
+
+  .btn-primary {
+    background: var(--primary);
+    color: white;
+    box-shadow: 0 4px 15px rgba(255, 143, 177, 0.4);
+  }
+
+  .btn-primary:hover {
+    background: #ff7aa3;
+    transform: translateY(-3px);
+  }
+
+  .btn-outline {
+    border: 2px solid var(--primary);
+    color: var(--primary);
+  }
+
+  .btn-outline:hover {
+    background: var(--primary);
+    color: white;
+  }
+
+  @media (max-width: 768px) {
+    .hero {
+      text-align: center;
+      justify-content: center;
+      padding-top: 100px;
+      padding-bottom: 4rem;
+    }
+
+    .hero-overlay {
+      background: rgba(255, 245, 247, 0.85);
+    }
+
+    .hero-text {
+      max-width: 100%;
+    }
+
+    .poem {
+      border-left: none;
+      padding-left: 0;
+      border-top: 1px solid var(--primary-light);
+      border-bottom: 1px solid var(--primary-light);
+      padding: 1.5rem 0;
+    }
+
+    .hero-actions {
+      justify-content: center;
+    }
+    
+    .btn {
+      flex: none;
+      width: 100%;
+      max-width: 300px;
+    }
+  }
+</style>

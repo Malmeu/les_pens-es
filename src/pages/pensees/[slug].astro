@@ -1,0 +1,98 @@
+---
+import { getCollection, render } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import { Header } from '../../components/Header';
+
+export async function getStaticPaths() {
+	const thoughts = await getCollection('thoughts');
+	return thoughts.map((entry) => ({
+		params: { slug: entry.id },
+		props: { entry },
+	}));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+
+const dateValue = entry.data.date;
+const formattedDate = new Date(dateValue).toLocaleDateString('fr-FR', {
+	day: 'numeric',
+	month: 'long',
+	year: 'numeric'
+});
+---
+
+<Layout title={`${entry.data.title} | Les Pensées de Mina`}>
+	<Header client:load />
+	<div class="letter-bg">
+		<div class="letter animate-fade-in">
+			<div class="stamp">
+				Mina Blog<br/>{formattedDate}
+			</div>
+			
+			<h1 class="letter-title">{entry.data.title}</h1>
+			
+			<div class="letter-content">
+				<Content />
+			</div>
+			
+			<div class="letter-footer">
+				<p>Avec toute ma tendresse,</p>
+				<p class="signature-small">Mina</p>
+			</div>
+			
+			<div class="wax-seal-container">
+				<a href="/" class="wax-seal" title="Retour à l'accueil">
+					M
+				</a>
+			</div>
+		</div>
+	</div>
+</Layout>
+
+<style>
+	.letter-title {
+		font-family: var(--font-serif);
+		font-size: 2.5rem;
+		margin-bottom: 3rem;
+		color: var(--text-dark);
+		border-bottom: 1px solid #eee;
+		padding-bottom: 1rem;
+	}
+
+	.letter-content {
+		margin-bottom: 5rem;
+	}
+
+	.letter-footer {
+		margin-top: auto;
+		text-align: right;
+		font-family: var(--font-script);
+		font-size: 1.8rem;
+		color: var(--text-light);
+	}
+
+	.signature-small {
+		font-size: 2.2rem;
+		color: var(--primary);
+	}
+
+	.wax-seal-container {
+		position: absolute;
+		bottom: -30px;
+		left: 50%;
+		transform: translateX(-50%);
+	}
+
+	@media (max-width: 768px) {
+		.letter {
+			padding: 2rem;
+			min-height: auto;
+		}
+		.stamp {
+			position: static;
+			margin-bottom: 2rem;
+			transform: none;
+		}
+	}
+</style>
