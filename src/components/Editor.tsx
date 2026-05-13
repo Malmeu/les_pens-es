@@ -1,8 +1,22 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { marked } from 'marked';
-import { Save, Eye, Edit3, Bold, Italic, List, Link as LinkIcon, Quote, Type, Image as ImageIcon, Columns } from 'lucide-react';
+import { Save, Eye, Edit3, Bold, Italic, List, Link as LinkIcon, Quote, Type, Image as ImageIcon, Columns, Trash2, RotateCcw } from 'lucide-react';
 
-export const Editor = () => {
+interface Thought {
+  id: string;
+  title: string;
+  content: string;
+  type: 'positive' | 'negative' | 'poem';
+  date: string | Date;
+}
+
+interface Props {
+  initialThoughts: Thought[];
+}
+
+export const Editor = ({ initialThoughts }: Props) => {
+  const [thoughts, setThoughts] = useState<Thought[]>(initialThoughts);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [type, setType] = useState<'positive' | 'negative' | 'poem'>('positive');
@@ -99,6 +113,46 @@ ${content}`;
     }
   };
 
+  const handleEdit = (thought: Thought) => {
+    setTitle(thought.title);
+    setContent(thought.content);
+    setType(thought.type);
+    setEditingId(thought.id);
+    setPublishStatus(null);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleDelete = async (slug: string) => {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer cette pensée ?')) return;
+
+    try {
+      const response = await fetch('/api/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slug }),
+      });
+
+      if (response.ok) {
+        setThoughts(thoughts.filter(t => t.id !== slug));
+        if (editingId === slug) {
+          handleReset();
+        }
+      } else {
+        alert('Erreur lors de la suppression.');
+      }
+    } catch (error) {
+      alert('Erreur de connexion.');
+    }
+  };
+
+  const handleReset = () => {
+    setTitle('');
+    setContent('');
+    setType('positive');
+    setEditingId(null);
+    setPublishStatus(null);
+  };
+
   return (
     <div className={`editor-container glass ${viewMode === 'split' ? 'split-view' : ''}`}>
       <div className="editor-header">
@@ -188,6 +242,9 @@ ${content}`;
           )}
         </div>
         <div className="footer-actions">
+          <button onClick={handleReset} className="download-btn" title="Nouveau / Réinitialiser">
+            <RotateCcw size={18} />
+          </button>
           <button onClick={handleSave} className="download-btn" title="Télécharger le fichier Markdown">
             <Save size={18} /> .md
           </button>
@@ -196,8 +253,36 @@ ${content}`;
             className={`publish-btn ${isPublishing ? 'loading' : ''}`}
             disabled={isPublishing}
           >
-            {isPublishing ? 'Publication...' : 'Publier la pensée'}
+            {isPublishing ? 'Publication...' : editingId ? 'Mettre à jour' : 'Publier la pensée'}
           </button>
+        </div>
+      </div>
+
+      <div className="thoughts-management">
+        <h2 className="management-title">Mes dernières pensées</h2>
+        <div className="thoughts-list">
+          {thoughts.length === 0 ? (
+            <p className="no-thoughts">Aucune pensée enregistrée pour le moment.</p>
+          ) : (
+            thoughts.map(thought => (
+              <div key={thought.id} className={`thought-item glass ${thought.type}`}>
+                <div className="item-info">
+                  <span className="item-date">
+                    {new Date(thought.date).toLocaleDateString('fr-FR')}
+                  </span>
+                  <h4 className="item-title">{thought.title}</h4>
+                </div>
+                <div className="item-actions">
+                  <button onClick={() => handleEdit(thought)} className="action-btn edit" title="Modifier">
+                    <Edit3 size={16} />
+                  </button>
+                  <button onClick={() => handleDelete(thought.id)} className="action-btn delete" title="Supprimer">
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </div>
 
@@ -439,6 +524,94 @@ ${content}`;
 
         .publish-btn.loading {
           background: var(--text-light);
+        }
+
+        .thoughts-management {
+          margin-top: 4rem;
+          padding: 0 1rem;
+        }
+
+        .management-title {
+          font-size: 1.8rem;
+          margin-bottom: 2rem;
+          color: var(--text-dark);
+        }
+
+        .thoughts-list {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+          gap: 1.5rem;
+        }
+
+        .thought-item {
+          padding: 1.5rem;
+          border-radius: 16px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          transition: all 0.3s ease;
+        }
+
+        .thought-item:hover {
+          transform: translateY(-3px);
+          box-shadow: var(--shadow);
+        }
+
+        .item-info {
+          display: flex;
+          flex-direction: column;
+          gap: 0.3rem;
+        }
+
+        .item-date {
+          font-size: 0.75rem;
+          color: var(--text-light);
+          opacity: 0.7;
+        }
+
+        .item-title {
+          font-size: 1.1rem;
+          color: var(--text-dark);
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          max-width: 180px;
+        }
+
+        .item-actions {
+          display: flex;
+          gap: 0.5rem;
+        }
+
+        .action-btn {
+          width: 36px;
+          height: 36px;
+          border-radius: 10px;
+          border: 1px solid var(--glass-border);
+          background: white;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+
+        .action-btn.edit { color: var(--primary); }
+        .action-btn.delete { color: #f87171; }
+
+        .action-btn:hover {
+          transform: scale(1.1);
+        }
+
+        .action-btn.edit:hover { background: var(--bg); }
+        .action-btn.delete:hover { background: #fff1f0; }
+
+        .no-thoughts {
+          color: var(--text-light);
+          font-style: italic;
+          grid-column: 1 / -1;
+          text-align: center;
+          padding: 3rem;
         }
 
         @media (max-width: 900px) {

@@ -1,7 +1,17 @@
 ---
+import { getCollection } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
 import { Header } from '../components/Header';
 import { Editor } from '../components/Editor';
+
+const thoughts = await getCollection('thoughts');
+const sortedThoughts = thoughts.map(t => ({
+	id: t.id,
+	title: t.data.title,
+	content: t.body || '',
+	type: t.data.type,
+	date: t.data.date
+})).sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
 ---
 
 <Layout title="Écrire une pensée | Les Pensées de Mina">
@@ -16,7 +26,7 @@ import { Editor } from '../components/Editor';
 				</p>
 			</div>
 			
-			<Editor client:load />
+			<Editor client:load initialThoughts={sortedThoughts} />
 		</div>
 	</main>
 </Layout>
