@@ -115,9 +115,38 @@ a {
 
 .letter-content {
   font-family: var(--font-script);
-  font-size: 1.6rem;
+  font-size: 1.8rem;
   line-height: 1.8;
   color: #333;
+  margin-bottom: 5rem;
+}
+
+.letter-content p {
+  margin-bottom: 1.5rem;
+}
+
+.letter-content strong {
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.letter-content em {
+  font-style: italic;
+  opacity: 0.9;
+}
+
+.letter-content blockquote {
+  border-left: 2px solid var(--primary-light);
+  padding-left: 1.5rem;
+  margin: 2rem 0;
+  font-style: italic;
+  opacity: 0.8;
+}
+
+.letter-content h1, .letter-content h2, .letter-content h3 {
+  font-family: var(--font-serif);
+  margin: 2rem 0 1rem;
+  color: var(--text-dark);
 }
 
 .stamp {

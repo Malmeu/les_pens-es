@@ -8,6 +8,8 @@ export const Editor = () => {
   const [type, setType] = useState<'positive' | 'negative' | 'poem'>('positive');
   const [viewMode, setViewMode] = useState<'edit' | 'preview' | 'split'>('edit');
   const [html, setHtml] = useState('');
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [publishStatus, setPublishStatus] = useState<{ type: 'success' | 'error', message: string } | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -23,14 +25,22 @@ export const Editor = () => {
     const start = textareaRef.current.selectionStart;
     const end = textareaRef.current.selectionEnd;
     const text = textareaRef.current.value;
-    const selection = text.substring(start, end);
-    const newText = text.substring(0, start) + before + selection + after + text.substring(end);
+    const originalSelection = text.substring(start, end);
+    const selection = originalSelection.trim();
+    
+    // Si on a sélectionné du texte avec des espaces autour, on garde les espaces à l'extérieur des tags
+    const leadSpace = originalSelection.match(/^\s*/)?.[0] || '';
+    const trailSpace = originalSelection.match(/\s*$/)?.[0] || '';
+    
+    const newText = text.substring(0, start) + leadSpace + before + selection + after + trailSpace + text.substring(end);
     setContent(newText);
     
     setTimeout(() => {
       if (textareaRef.current) {
         textareaRef.current.focus();
-        const cursorPosition = start + before.length + selection.length + after.length;
+        const cursorPosition = selection.length > 0 
+          ? start + leadSpace.length + before.length + selection.length + after.length
+          : start + before.length;
         textareaRef.current.setSelectionRange(cursorPosition, cursorPosition);
       }
     }, 0);
@@ -53,6 +63,40 @@ ${content}`;
     a.download = `${slug || 'nouvelle-pensee'}.md`;
     a.click();
     URL.revokeObjectURL(url);
+  };
+
+  const handlePublish = async () => {
+    if (!title || !content) {
+      setPublishStatus({ type: 'error', message: 'Veuillez remplir le titre et le contenu.' });
+      return;
+    }
+
+    setIsPublishing(true);
+    setPublishStatus(null);
+
+    try {
+      const response = await fetch('/api/publish', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, content, type }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setPublishStatus({ type: 'success', message: 'Votre pensée a été publiée avec succès !' });
+        // Optionnel: Rediriger ou vider le formulaire
+        setTimeout(() => {
+          window.location.href = `/pensees/${data.slug}`;
+        }, 1500);
+      } else {
+        setPublishStatus({ type: 'error', message: data.error || 'Une erreur est survenue.' });
+      }
+    } catch (error) {
+      setPublishStatus({ type: 'error', message: 'Erreur de connexion au serveur.' });
+    } finally {
+      setIsPublishing(false);
+    }
   };
 
   return (
@@ -135,10 +179,26 @@ ${content}`;
       </div>
 
       <div className="editor-footer">
-        <p className="hint">Mode: {viewMode === 'edit' ? 'Édition' : viewMode === 'split' ? 'Côte à côte' : 'Aperçu'}</p>
-        <button onClick={handleSave} className="save-btn">
-          <Save size={18} /> Télécharger .md
-        </button>
+        <div className="footer-left">
+          <p className="hint">Mode: {viewMode === 'edit' ? 'Édition' : viewMode === 'split' ? 'Côte à côte' : 'Aperçu'}</p>
+          {publishStatus && (
+            <span className={`status-msg ${publishStatus.type}`}>
+              {publishStatus.message}
+            </span>
+          )}
+        </div>
+        <div className="footer-actions">
+          <button onClick={handleSave} className="download-btn" title="Télécharger le fichier Markdown">
+            <Save size={18} /> .md
+          </button>
+          <button 
+            onClick={handlePublish} 
+            className={`publish-btn ${isPublishing ? 'loading' : ''}`}
+            disabled={isPublishing}
+          >
+            {isPublishing ? 'Publication...' : 'Publier la pensée'}
+          </button>
+        </div>
       </div>
 
       <style>{`
@@ -298,11 +358,64 @@ ${content}`;
           align-items: center;
         }
 
-        .save-btn {
+        .footer-left {
+          display: flex;
+          align-items: center;
+          gap: 1.5rem;
+        }
+
+        .status-msg {
+          font-size: 0.9rem;
+          padding: 0.4rem 1rem;
+          border-radius: 20px;
+          animation: fadeIn 0.3s ease;
+        }
+
+        .status-msg.success {
+          background: #e8f7f0;
+          color: #10b981;
+        }
+
+        .status-msg.error {
+          background: #fff1f0;
+          color: #f87171;
+        }
+
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(5px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        .footer-actions {
+          display: flex;
+          gap: 1rem;
+        }
+
+        .download-btn {
+          background: white;
+          color: var(--text-light);
+          border: 1px solid var(--glass-border);
+          padding: 0.7rem 1.2rem;
+          border-radius: 50px;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.3s;
+        }
+
+        .download-btn:hover {
+          background: var(--bg);
+          border-color: var(--primary);
+          color: var(--primary);
+        }
+
+        .publish-btn {
           background: var(--primary);
           color: white;
           border: none;
-          padding: 0.7rem 1.4rem;
+          padding: 0.7rem 1.8rem;
           border-radius: 50px;
           display: flex;
           align-items: center;
@@ -310,12 +423,22 @@ ${content}`;
           font-weight: 600;
           cursor: pointer;
           transition: all 0.3s;
+          box-shadow: 0 4px 12px rgba(126, 182, 226, 0.2);
         }
 
-        .save-btn:hover {
+        .publish-btn:hover:not(:disabled) {
           background: #6a9fd1;
           transform: translateY(-2px);
-          box-shadow: 0 4px 12px rgba(126, 182, 226, 0.3);
+          box-shadow: 0 6px 15px rgba(126, 182, 226, 0.3);
+        }
+
+        .publish-btn:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+
+        .publish-btn.loading {
+          background: var(--text-light);
         }
 
         @media (max-width: 900px) {
