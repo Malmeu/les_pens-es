@@ -6,7 +6,7 @@ import Hero from '../components/Hero.astro';
 import { ThoughtGrid } from '../components/ThoughtGrid';
 
 const thoughts = await getCollection('thoughts');
-const formattedThoughts = thoughts.map(t => ({
+const formattedThoughts = thoughts.map((t: any) => ({
 	id: t.id,
 	slug: t.id, // Dans Astro 5+ glob loader, l'id est souvent le chemin relatif/slug
 	type: t.data.type,
@@ -17,7 +17,7 @@ const formattedThoughts = thoughts.map(t => ({
 		month: 'long',
 		year: 'numeric'
 	})
-})).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+})).sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
 ---
 
 <Layout title="Les Pensées de Mina | Blog Poétique">

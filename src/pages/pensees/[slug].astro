@@ -5,7 +5,7 @@ import { Header } from '../../components/Header';
 
 export async function getStaticPaths() {
 	const thoughts = await getCollection('thoughts');
-	return thoughts.map((entry) => ({
+	return thoughts.map((entry: any) => ({
 		params: { slug: entry.id },
 		props: { entry },
 	}));
