@@ -313,9 +313,9 @@ ${content}`;
         }
 
         .save-btn:hover {
-          background: #ff7aa3;
+          background: #6a9fd1;
           transform: translateY(-2px);
-          box-shadow: 0 4px 12px rgba(255, 143, 177, 0.3);
+          box-shadow: 0 4px 12px rgba(126, 182, 226, 0.3);
         }
 
         @media (max-width: 900px) {

@@ -149,7 +149,7 @@ export const ThoughtGrid = ({ initialThoughts }: Props) => {
         .filter-btn.active {
           background: var(--primary);
           color: white;
-          box-shadow: 0 4px 10px rgba(255, 143, 177, 0.3);
+          box-shadow: 0 4px 10px rgba(126, 182, 226, 0.3);
         }
 
         .thought-grid {

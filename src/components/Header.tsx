@@ -160,7 +160,7 @@ export const Header = () => {
           color: white !important;
           padding: 0.6rem 1.8rem;
           border-radius: 50px;
-          box-shadow: 0 4px 15px rgba(255, 143, 177, 0.3);
+          box-shadow: 0 4px 15px rgba(126, 182, 226, 0.3);
         }
 
         /* Hamburger Styles */
@@ -195,7 +195,7 @@ export const Header = () => {
           left: 0;
           width: 100%;
           height: 100%;
-          background: rgba(45, 27, 46, 0.4);
+          background: rgba(30, 47, 64, 0.4);
           backdrop-filter: blur(4px);
           z-index: 1050;
         }
