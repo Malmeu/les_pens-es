@@ -2,10 +2,10 @@
 import { getCollection } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
 import { Header } from '../components/Header';
-import { Editor } from '../components/Editor';
+import { Editor, type Thought } from '../components/Editor';
 
 const thoughts = await getCollection('thoughts');
-const sortedThoughts = thoughts.map(t => ({
+const sortedThoughts: Thought[] = thoughts.map((t: any) => ({
 	id: t.id,
 	title: t.data.title,
 	content: t.body || '',

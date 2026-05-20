@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { marked } from 'marked';
 import { Save, Eye, Edit3, Bold, Italic, List, Link as LinkIcon, Quote, Type, Image as ImageIcon, Columns, Trash2, RotateCcw } from 'lucide-react';
 
-interface Thought {
+export interface Thought {
   id: string;
   title: string;
   content: string;
@@ -10,11 +10,11 @@ interface Thought {
   date: string | Date;
 }
 
-interface Props {
+interface EditorProps {
   initialThoughts: Thought[];
 }
 
-export const Editor = ({ initialThoughts }: Props) => {
+export const Editor = ({ initialThoughts }: EditorProps) => {
   const [thoughts, setThoughts] = useState<Thought[]>(initialThoughts);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [title, setTitle] = useState('');
