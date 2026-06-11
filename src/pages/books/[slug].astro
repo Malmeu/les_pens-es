@@ -1,0 +1,101 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import { Header } from '../../components/Header';
+import { FlipBook } from '../../components/FlipBook';
+
+const { slug } = Astro.params;
+
+if (!slug) {
+	return Astro.redirect('/404');
+}
+
+let chapters: any[] = [];
+let bookTitle = '';
+let bookDescription = '';
+let coverColor: 'pink' | 'purple' | 'blue' | 'green' | 'cream' = 'pink';
+
+try {
+	const allChapters = await getCollection('books');
+	chapters = allChapters
+		.filter((ch: any) => ch.data.bookId === slug)
+		.map((ch: any) => ({
+			title: ch.data.title,
+			content: ch.body || '',
+			chapterNumber: ch.data.chapterNumber
+		}))
+		.sort((a, b) => a.chapterNumber - b.chapterNumber);
+		
+	if (chapters.length === 0) {
+		return Astro.redirect('/404');
+	}
+	
+	// Récupérer les métadonnées depuis le premier chapitre
+	const firstChapter = allChapters.find((ch: any) => ch.data.bookId === slug);
+	if (firstChapter) {
+		bookTitle = firstChapter.data.bookTitle;
+		bookDescription = firstChapter.data.bookDescription || '';
+		coverColor = (firstChapter.data.coverColor as any) || 'pink';
+	}
+} catch (e) {
+	console.error("Erreur lors du chargement du livre :", e);
+	return Astro.redirect('/404');
+}
+---
+
+<Layout title={`${bookTitle} | Les Livres de Mina`}>
+	<Header client:load />
+	
+	<main class="reading-page">
+		<div class="container section-padding">
+			<div class="reading-header animate-fade-in">
+				<a href="/books" class="back-link">← Retour à la bibliothèque</a>
+			</div>
+			
+			<div class="book-workspace animate-fade-in">
+				<FlipBook 
+					client:load 
+					bookTitle={bookTitle} 
+					bookDescription={bookDescription} 
+					coverColor={coverColor} 
+					chapters={chapters} 
+				/>
+			</div>
+		</div>
+	</main>
+</Layout>
+
+<style>
+	.reading-page {
+		min-height: 100vh;
+		background: #f4ece1; /* Couleur chaude type papier/bureau */
+		background-image: radial-gradient(rgba(0,0,0,0.03) 1px, transparent 0),
+		                  radial-gradient(rgba(0,0,0,0.03) 1px, transparent 0);
+		background-size: 20px 20px;
+		background-position: 0 0, 10px 10px;
+	}
+
+	.reading-header {
+		max-width: 1000px;
+		margin: 0 auto 3rem;
+	}
+
+	.back-link {
+		font-family: var(--font-sans);
+		font-weight: 600;
+		font-size: 0.95rem;
+		color: var(--text-light);
+		transition: color 0.2s;
+	}
+
+	.back-link:hover {
+		color: var(--primary);
+	}
+
+	.book-workspace {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		min-height: 600px;
+	}
+</style>

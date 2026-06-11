@@ -2,8 +2,11 @@
 import { getCollection } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
 import { Header } from '../components/Header';
-import { Editor, type Thought } from '../components/Editor';
+import { WriteDashboard } from '../components/WriteDashboard';
+import type { Thought } from '../components/Editor';
+import type { BookChapter } from '../components/BookEditor';
 
+// Charger les pensées
 const thoughts = await getCollection('thoughts');
 const sortedThoughts: Thought[] = thoughts.map((t: any) => ({
 	id: t.id,
@@ -12,21 +15,42 @@ const sortedThoughts: Thought[] = thoughts.map((t: any) => ({
 	type: t.data.type,
 	date: t.data.date
 })).sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+// Charger les chapitres de livres (gérer le cas où la collection est vide)
+let sortedChapters: BookChapter[] = [];
+try {
+	const bookChapters = await getCollection('books');
+	if (bookChapters) {
+		sortedChapters = bookChapters.map((ch: any) => ({
+			id: ch.id,
+			title: ch.data.title,
+			content: ch.body || '',
+			bookId: ch.data.bookId,
+			bookTitle: ch.data.bookTitle,
+			bookDescription: ch.data.bookDescription || '',
+			coverColor: ch.data.coverColor || 'pink',
+			chapterNumber: ch.data.chapterNumber || 1,
+			date: ch.data.date
+		})).sort((a: any, b: any) => a.chapterNumber - b.chapterNumber);
+	}
+} catch (e) {
+	console.log("La collection de livres est actuellement vide ou inexistante.");
+}
 ---
 
-<Layout title="Écrire une pensée | Les Pensées de Mina">
+<Layout title="Écrire | Les Pensées de Mina">
 	<Header client:load />
 	<main class="write-page">
 		<div class="container section-padding">
 			<div class="write-header animate-fade-in">
 				<span class="subtitle">Laisser parler son cœur</span>
-				<h1>Rédiger une <span class="text-gradient">Pensée</span></h1>
+				<h1>Espace de <span class="text-gradient">Création</span></h1>
 				<p>
-					Prenez un moment pour vous. Posez vos mots, qu'ils soient légers comme une plume ou lourds comme un secret. 
+					Rédigez une pensée passagère ou écrivez les pages de vos futurs livres. Vos mots méritent de briller.
 				</p>
 			</div>
 			
-			<Editor client:load initialThoughts={sortedThoughts} />
+			<WriteDashboard client:load initialThoughts={sortedThoughts} initialChapters={sortedChapters} />
 		</div>
 	</main>
 </Layout>

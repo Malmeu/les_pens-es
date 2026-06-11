@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, PenTool, Home, BookHeart, User } from 'lucide-react';
+import { Menu, X, PenTool, Home, BookHeart, User, BookOpen } from 'lucide-react';
 
 export const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -19,6 +19,7 @@ export const Header = () => {
   const navLinks = [
     { name: 'Accueil', href: '/#accueil', icon: <Home size={18} /> },
     { name: 'Mes Pensées', href: '/#pensees', icon: <BookHeart size={18} /> },
+    { name: 'Mes Livres', href: '/books', icon: <BookOpen size={18} /> },
     { name: 'Écrire', href: '/write', icon: <PenTool size={18} />, special: true },
     { name: 'À Propos', href: '/#apropos', icon: <User size={18} /> },
   ];
