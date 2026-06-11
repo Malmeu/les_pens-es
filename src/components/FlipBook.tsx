@@ -19,6 +19,32 @@ interface FlipBookProps {
 export const FlipBook = ({ bookTitle, bookDescription, coverColor, chapters }: FlipBookProps) => {
   const [isMobile, setIsMobile] = useState(false);
   const [currentPage, setCurrentPage] = useState(0); // Index de la feuille active (0 = couverture fermée)
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+
+  const minSwipeDistance = 50;
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+    
+    if (isLeftSwipe) {
+      nextPage();
+    } else if (isRightSwipe) {
+      prevPage();
+    }
+  };
 
   // Détecter si l'écran est mobile
   useEffect(() => {
@@ -142,7 +168,12 @@ export const FlipBook = ({ bookTitle, bookDescription, coverColor, chapters }: F
           </button>
         </div>
 
-        <div className="mobile-card-wrapper">
+        <div 
+          className="mobile-card-wrapper"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
           <AnimatePresence mode="wait">
             <motion.div
               key={currentPage}
@@ -356,6 +387,19 @@ export const FlipBook = ({ bookTitle, bookDescription, coverColor, chapters }: F
             font-style: italic;
             color: var(--text-light);
           }
+
+          @media (max-width: 480px) {
+            .mobile-page-card {
+              padding: 1.5rem;
+              min-height: 460px;
+            }
+            .cover-title {
+              font-size: 1.8rem;
+            }
+            .gold-frame {
+              padding: 1.5rem 1rem;
+            }
+          }
         `}</style>
       </div>
     );
@@ -536,7 +580,7 @@ export const FlipBook = ({ bookTitle, bookDescription, coverColor, chapters }: F
         }
 
         .book-3d.is-open {
-          transform: translateX(25%); /* Repositionner au centre quand il s'ouvre */
+          transform: translateX(50%); /* Repositionner au centre quand il s'ouvre */
         }
 
         .sheet {
